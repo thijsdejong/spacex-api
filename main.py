@@ -16,9 +16,15 @@ async def main():
     success = await api_client.get_upcoming_launches()
     write_file(success, "upcoming_launches.json")
 
-    #close 
+    success = await api_client.get_upcoming_launches()
+    write_file(success, "upcoming_launches.json")
+
+    success = await api_client.get_launchpads()
+    write_file(success, "launchpads.json")
+
+    #close
     await api_client.close()
-    
+
 
 def write_file(data, filename):
     f = open(filename, "w")

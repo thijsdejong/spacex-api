@@ -6,7 +6,7 @@ import json
 
 _LOGGER = logging.getLogger("spacex-pypi")
 
-BASE_URL = "https://api.spacexdata.com/v4/"
+BASE_URL = "https://api.spacexdata.com/v4"
 
 class SpaceX:
     def __init__(self):
@@ -18,15 +18,15 @@ class SpaceX:
         """Close the session."""
         await self._session.close()
 
-    async def get_roadster_status(self):
-        """Get the roadster status."""
+    async def api_request(self, endpoint):
+        """Make an api request."""
         response = {}
 
-        roadsterURL = BASE_URL + "roadster"
+        url = BASE_URL + str(endpoint)
 
-        async with await self._session.get(roadsterURL) as resp:
+        async with await self._session.get(url) as resp:
             response = await resp.text()
-        
+
         if response is not None:
             try:
                 return json.loads(response)
@@ -35,61 +35,28 @@ class SpaceX:
             except Exception as error:
                 raise ValueError("Unknown error in SpaceX data (%s),", error)
         else:
-            raise ConnectionError("Error getting roadster data.")
+            raise ConnectionError("Error getting data for: %s", endpoint);
+
+    async def get_roadster_status(self):
+        """Get the roadster status."""
+        return await self.api_request("/roadster")
 
     async def get_next_launch(self):
         """Get the next SpaceX Launch details."""
-        response = {}
-
-        launchURL = BASE_URL + "launches/next"
-
-        async with await self._session.get(launchURL) as resp:
-            response = await resp.text()
-
-        if response is not None:
-            try:
-                return json.loads(response)
-            except json.decoder.JSONDecodeError as error:
-                raise ValueError("Error decoding SpaceX Data (%s).", error)
-            except Exception as error:
-                raise ValueError("Unknown error in SpaceX data (%s),", error)
-        else:
-            raise ConnectionError("Error getting next launch data.")
+        return await self.api_request("/launches/next")
 
     async def get_latest_launch(self):
         """Get the latest SpaceX Launch details."""
-        response = {}
-
-        launchURL = BASE_URL + "launches/latest"
-
-        async with await self._session.get(launchURL) as resp:
-            response = await resp.text()
-
-        if response is not None:
-            try:
-                return json.loads(response)
-            except json.decoder.JSONDecodeError as error:
-                raise ValueError("Error decoding SpaceX Data (%s).", error)
-            except Exception as error:
-                raise ValueError("Unknown error in SpaceX data (%s),", error)
-        else:
-            raise ConnectionError("Error getting latest launch data.")
+        return await self.api_request("/launches/latest")
 
     async def get_upcoming_launches(self):
         """Get all upcoming launches."""
-        response = {}
+        return await self.api_request("/launches/upcoming")
 
-        launchURL = BASE_URL + "launches/upcoming"
+    async def get_latest_launch(self):
+        """Get the latest SpaceX Launch details."""
+        return await self.api_request("/launches/latest")
 
-        async with await self._session.get(launchURL) as resp:
-            response = await resp.text()
-
-        if response is not None:
-            try:
-                return json.loads(response)
-            except json.decoder.JSONDecodeError as error:
-                raise ValueError("Error decoding SpaceX Data (%s).", error)
-            except Exception as error:
-                raise ValueError("Unknown error in SpaceX data (%s),", error)
-        else:
-            raise ConnectionError("Error getting upcoming launch data.")
+    async def get_launchpads(self):
+        """Get all launchpads."""
+        return await self.api_request("/launchpads")
